@@ -1,0 +1,40 @@
+
+margins:
+    top: 25
+    bottom: 25
+    left: 25
+    right: 25
+
+staff:
+    bars:
+        # Values from 0.01 to infinity.
+        # You can also decrease bar transparency if you want the bars to be even
+        # more subtle.
+        bar_width: 0.1
+        # 1.0 is 100% visible, 0.0 is 0% visible.
+        bar_transparency: 0.5
+        inter_bar_distance: 7
+
+    notes:
+        # A whole number or "auto".
+        # "auto" will default to the value of inter_bar_space.
+        note_diameter: auto
+        # A whole number or "auto".
+        # "auto" will default to half the value of note_diameter.
+        note_margin: auto
+
+    # Distance from the last bar of a system to the first bar of the next system.
+    # If not drawing a full grand staff then this should be higher since the
+    # treble clef estends about 1.5 bars below the last bar of the system.
+    inter_staff_distance: 30
+
+    # Whether to draw both the treble and bass staves, or only the treble staff.
+    draw_grand_staff: true
+
+
+    paths:
+        treble_clef: ".\\data\\img\\treble_clef.svg"
+        bass_clef: ".\\data\\img\\bass_clef.svg"
+
+output_dir: ".\\tabs\\staff"
+
