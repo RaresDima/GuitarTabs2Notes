@@ -205,13 +205,13 @@ def semibars_relative_to_center_of_top_bar(note: Note) -> int:
         'D' : -2,
         'D#': -2,
         'E' : -1,
-        'F' : 0,
-        'F#': 0,
-        'G' : 1,
-        'G#': 1,
-        'A' : 2,
-        'A#': 2,
-        'B' : 3
+        'F' : +0,
+        'F#': +0,
+        'G' : +1,
+        'G#': +1,
+        'A' : +2,
+        'A#': +2,
+        'B' : +3
     }
     base_diff = base_diffs_from_f[note.value.value]
     octave_shift = note.octave_shift - 1
@@ -219,11 +219,11 @@ def semibars_relative_to_center_of_top_bar(note: Note) -> int:
     return diff
 
 
-def draw_note(pdf: canvas.Canvas,
-              note: Note,
-              position: int,
-              first_block_left_x: int,
-              top_bar_y: int,):
+def add_note_to_system(pdf: canvas.Canvas,
+                       note: Note,
+                       position: int,
+                       first_block_left_x: int,
+                       top_bar_y: int, ):
 
     pdf.setStrokeColorRGB(0, 0, 0, 1.0)
     pdf.setFillColorRGB(0, 0, 0, 1.0)
@@ -240,6 +240,36 @@ def draw_note(pdf: canvas.Canvas,
     note_y_offset = semibar_diff * (inter_bar_distance / 2)
     note_center_y = top_bar_y + note_y_offset
 
+    if semibar_diff > +0 or semibar_diff < -8:
+
+        bar_width = CONFIG['staff']['bars']['bar_width']
+        bar_transparency = CONFIG['staff']['bars']['bar_transparency']
+        support_bar_length = CONFIG['staff']['bars']['support_bar_length']
+
+        pdf.setLineWidth(bar_width)
+        pdf.setStrokeColorRGB(0, 0, 0, bar_transparency)
+
+        line_start_x = note_center_x - 0.5 * support_bar_length
+        line_end_x = note_center_x + 0.5 * support_bar_length
+
+        current_diff = semibar_diff
+        diff_shift_factor = -2 if semibar_diff > 0 else +2
+        line_y_shift_factor = (-1 if semibar_diff > 0 else +1) * inter_bar_distance
+
+        if semibar_diff % 2 == 0:  # bar trough
+            line_y = note_center_y
+
+        elif semibar_diff >= +1:  # bar under
+            line_y = note_center_y - inter_bar_distance / 2
+
+        elif semibar_diff <= -9:  # bar over
+            line_y = note_center_y + inter_bar_distance / 2
+
+        while current_diff > +1 or current_diff < -9:
+            pdf.line(line_start_x, line_y, line_end_x, line_y)
+            current_diff += diff_shift_factor
+            line_y += line_y_shift_factor
+
     pdf.circle(note_center_x, note_center_y, note_diameter/2, fill=1)
 
 
@@ -247,8 +277,12 @@ def add_notes_to_system(pdf: canvas.Canvas,
                         notes: List[Note],
                         first_block_left_x: int,
                         top_bar_y: int):
-    ...
 
+    for pos, symbol in enumerate(notes):
+        if symbol == '-':
+            continue
+
+        add_note_to_system(pdf, symbol, pos, first_block_left_x, top_bar_y)
 
 
 left_margin = CONFIG['margins']['left']
@@ -268,6 +302,7 @@ current_staff_top_left_y = top_left_y - top_margin
 
 for system in convertor.raw_output_symbols_by_system():
     first_block_left_x, bottom_bar_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
+    add_notes_to_system(pdf, system, first_block_left_x, current_staff_top_left_y)
     current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 first_block_left_x, bottom_bar_y = create_staff(pdf, 30, current_staff_top_left_x, current_staff_top_left_y)
@@ -275,7 +310,7 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 
-print(*convertor.raw_output_symbols_by_system(), sep='\n')
+# print(*convertor.raw_output_symbols_by_system(), sep='\n')
 
 
 

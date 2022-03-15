@@ -243,8 +243,6 @@ class GuitarTabConvertor:
             current_string_base_note = self.tuning[current_string_pos]
             current_note = current_string_base_note + current_fret
 
-            print(self.tuning)
-
             return current_note
 
         raise ValueError(f'Found unknown set of current symbols: {set_of_current_symbols}')

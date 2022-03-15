@@ -14,6 +14,10 @@ staff:
         # 1.0 is 100% visible, 0.0 is 0% visible.
         bar_transparency: 0.5
         inter_bar_distance: 7
+        # A whole number or "auto".
+        # The length of the bars used to support notes that are above or below the staff.
+        # "auto" will default to 2.5 x note_diameter.
+        support_bar_length: auto
 
     notes:
         # A whole number or "auto".
@@ -26,7 +30,7 @@ staff:
     # Distance from the last bar of a system to the first bar of the next system.
     # If not drawing a full grand staff then this should be higher since the
     # treble clef estends about 1.5 bars below the last bar of the system.
-    inter_staff_distance: 30
+    inter_staff_distance: 50
 
     # Whether to draw both the treble and bass staves, or only the treble staff.
     # Not much reason to turn on so far. Guitars don't regularly go this low.
