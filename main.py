@@ -124,9 +124,9 @@ def create_staff(pdf: canvas.Canvas,
     if top_left_x + staff_length + right_margin > pdf_width:
         max_notes = round((pdf_width - right_margin - top_left_x - treble_clef_width) // note_block_width)
         msg = (f'A system with {n_notes} notes (or spaces) would cause the system to go beyond the right margin of the page.\n'
-               f'With the current margins and note size you can have {max_notes} notes (or spaces) on a single system.'
-               f'The generated PDF will not look pretty, but it may be usable.\n'
-               f'To make the PDF pretty you can try to either:\n'
+               f'With the current margins and note size you can have {max_notes} notes (or spaces) on a single system. '
+               f'The generated PDF will not look pretty, but it *may* be usable.\n'
+               f'To make the PDF pretty you can try to make some changes before re-running the program:\n'
                f'  - shrink the margins of the page\n'
                f'  - make the notes or note margins smaller\n'
                f'  - manually edit the tabs given as input and split the larger systems into more than 1 system')
@@ -337,7 +337,6 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 
-# print(*convertor.raw_output_symbols_by_system(), sep='\n')
 
 
 
