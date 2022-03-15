@@ -52,13 +52,24 @@ def create_staff(pdf: canvas.Canvas,
     staff_height = inter_bar_distance * 4
 
     note_width = CONFIG['staff']['notes']['note_diameter'] + 2 * CONFIG['staff']['notes']['note_margin']
-    staff_length = note_width * n_notes
+    note_length = note_width * n_notes
 
     bar_width = CONFIG['staff']['bars']['bar_width']
     bar_transparency = CONFIG['staff']['bars']['bar_transparency']
 
     pdf.setLineWidth(bar_width)
     pdf.setStrokeColorRGB(0, 0, 0, bar_transparency)
+
+    # treble clef setup
+
+    treble_clef_path = CONFIG['staff']['paths']['treble_clef']
+    treble_clef_svg = svg2rlg(treble_clef_path)
+
+    treble_clef_height = staff_height + 3 * inter_bar_distance
+    treble_clef_svg = scale_svg_to_height(treble_clef_svg, treble_clef_height)
+    treble_clef_width = treble_clef_svg.width
+
+    staff_length = treble_clef_width + note_length
 
     # treble staff
 
@@ -100,12 +111,6 @@ def create_staff(pdf: canvas.Canvas,
 
     # treble clef
 
-    treble_clef_path = CONFIG['staff']['paths']['treble_clef']
-    treble_clef_svg = svg2rlg(treble_clef_path)
-
-    treble_clef_height = staff_height + 3 * inter_bar_distance
-    treble_clef_svg = scale_svg_to_height(treble_clef_svg, treble_clef_height)
-
     treble_clef_x = top_left_x
     treble_clef_y = top_left_y - 5.75 * inter_bar_distance
     renderPDF.draw(treble_clef_svg, pdf, treble_clef_x, treble_clef_y)
@@ -113,11 +118,9 @@ def create_staff(pdf: canvas.Canvas,
     # width warning
 
     right_margin = CONFIG['margins']['right']
-
     pdf_width, pdf_height = pdf._pagesize
-    treble_clef_width = treble_clef_svg.width
 
-    if top_left_x + treble_clef_width + staff_length + right_margin > pdf_width:
+    if top_left_x + staff_length + right_margin > pdf_width:
         max_notes = round((pdf_width - right_margin - top_left_x - treble_clef_width) // note_width)
         msg = (f'A system with {n_notes} notes (or spaces) would cause the system to go beyond the right margin of the page.\n'
                f'With the current margins and note size you can have {max_notes} notes (or spaces) on a single system.'
@@ -136,7 +139,6 @@ def create_staff(pdf: canvas.Canvas,
         return (treble_clef_x + treble_clef_svg.width,
                 top_left_y - staff_height)
 
-
     # bass staff
 
     pdf.line(top_left_x,
@@ -148,6 +150,7 @@ def create_staff(pdf: canvas.Canvas,
              top_left_y - 6 * inter_bar_distance,
              top_left_x + staff_length,
              top_left_y - 6 * inter_bar_distance)
+
 
     pdf.line(top_left_x,
              top_left_y - 7 * inter_bar_distance,
@@ -217,16 +220,11 @@ top_left_y = height
 current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
 
-end_x, end_y = create_staff(pdf, 50, current_staff_top_left_x, current_staff_top_left_y)
-current_staff_top_left_y = end_y - inter_staff_distance
+for system in convertor.raw_output_symbols_by_system():
+    end_x, end_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
+    current_staff_top_left_y = end_y - inter_staff_distance
 
-end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
-current_staff_top_left_y = end_y - inter_staff_distance
-
-end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
-current_staff_top_left_y = end_y - inter_staff_distance
-
-end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
+end_x, end_y = create_staff(pdf, 30, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = end_y - inter_staff_distance
 
 pdf.save()

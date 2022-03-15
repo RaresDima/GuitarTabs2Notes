@@ -18,10 +18,10 @@ staff:
     notes:
         # A whole number or "auto".
         # "auto" will default to the value of inter_bar_space.
-        note_diameter: auto
+        note_diameter: 7
         # A whole number or "auto".
         # "auto" will default to half the value of note_diameter.
-        note_margin: auto
+        note_margin: 2
 
     # Distance from the last bar of a system to the first bar of the next system.
     # If not drawing a full grand staff then this should be higher since the
@@ -29,7 +29,7 @@ staff:
     inter_staff_distance: 30
 
     # Whether to draw both the treble and bass staves, or only the treble staff.
-    draw_grand_staff: true
+    draw_grand_staff: false
 
 
     paths:
