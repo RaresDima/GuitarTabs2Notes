@@ -33,7 +33,7 @@ class Note:
 
     @staticmethod
     @lru_cache()
-    def _all_values() -> List['Note.Value']:
+    def all_values() -> List['Note.Value']:
         return [Note.Value.C,
                 Note.Value.Cs,
                 Note.Value.D,
@@ -50,7 +50,7 @@ class Note:
     @staticmethod
     @lru_cache()
     def _next_dict() -> Dict['Note.Value', 'Note.Value']:
-        all_values = Note._all_values()
+        all_values = Note.all_values()
         return dict(zip(all_values, all_values[1:] + [all_values[0]]))
 
     def __init__(self, value: Union['Note.Value', str], octave_shift: int = 0):
@@ -64,7 +64,7 @@ class Note:
         self.octave_shift = octave_shift
 
     def copy(self) -> 'Note':
-        return Note(self.value)
+        return Note(self.value, self.octave_shift)
 
     def note_str(self) -> str:
         octave_shift_symbol = ',' if self.octave_shift < 0 else "'"
@@ -81,7 +81,7 @@ class Note:
             pass
 
         if semitones > 0:
-            notes = self._all_values()
+            notes = self.all_values()
             curr_note_pos = notes.index(self.value)
             notes_left = len(notes) - curr_note_pos - 1
             if semitones <= notes_left:
@@ -92,7 +92,7 @@ class Note:
 
         if semitones < 0:
             semitones = abs(semitones)
-            notes = self._all_values()
+            notes = self.all_values()
             curr_note_pos = notes.index(self.value)
             notes_left = curr_note_pos
             if semitones <= notes_left:
@@ -127,7 +127,7 @@ class Note:
             return False
 
         if self.octave_shift == other.octave_shift:
-            notes = self._all_values()
+            notes = self.all_values()
             self_note_pos = notes.index(self.value)
             other_note_pos = notes.index(other.value)
             return self_note_pos > other_note_pos
@@ -140,7 +140,7 @@ class Note:
             return False
 
         if self.octave_shift == other.octave_shift:
-            notes = self._all_values()
+            notes = self.all_values()
             self_note_pos = notes.index(self.value)
             other_note_pos = notes.index(other.value)
             return self_note_pos < other_note_pos
@@ -242,6 +242,8 @@ class GuitarTabConvertor:
             current_fret = int(''.join(current_symbol))
             current_string_base_note = self.tuning[current_string_pos]
             current_note = current_string_base_note + current_fret
+
+            print(self.tuning)
 
             return current_note
 

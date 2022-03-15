@@ -51,8 +51,8 @@ def create_staff(pdf: canvas.Canvas,
     inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
     staff_height = inter_bar_distance * 4
 
-    note_width = CONFIG['staff']['notes']['note_diameter'] + 2 * CONFIG['staff']['notes']['note_margin']
-    note_length = note_width * n_notes
+    note_block_width = CONFIG['staff']['notes']['note_diameter'] + 2 * CONFIG['staff']['notes']['note_margin']
+    note_blocks_length = note_block_width * n_notes
 
     bar_width = CONFIG['staff']['bars']['bar_width']
     bar_transparency = CONFIG['staff']['bars']['bar_transparency']
@@ -69,7 +69,7 @@ def create_staff(pdf: canvas.Canvas,
     treble_clef_svg = scale_svg_to_height(treble_clef_svg, treble_clef_height)
     treble_clef_width = treble_clef_svg.width
 
-    staff_length = treble_clef_width + note_length
+    staff_length = treble_clef_width + note_blocks_length
 
     # treble staff
 
@@ -121,7 +121,7 @@ def create_staff(pdf: canvas.Canvas,
     pdf_width, pdf_height = pdf._pagesize
 
     if top_left_x + staff_length + right_margin > pdf_width:
-        max_notes = round((pdf_width - right_margin - top_left_x - treble_clef_width) // note_width)
+        max_notes = round((pdf_width - right_margin - top_left_x - treble_clef_width) // note_block_width)
         msg = (f'A system with {n_notes} notes (or spaces) would cause the system to go beyond the right margin of the page.\n'
                f'With the current margins and note size you can have {max_notes} notes (or spaces) on a single system.'
                f'The generated PDF will not look pretty, but it may be usable.\n'
@@ -136,7 +136,7 @@ def create_staff(pdf: canvas.Canvas,
     draw_grand_staff = CONFIG['staff']['draw_grand_staff']
 
     if not draw_grand_staff:
-        return (treble_clef_x + treble_clef_svg.width,
+        return (treble_clef_x + treble_clef_width,
                 top_left_y - staff_height)
 
     # bass staff
@@ -194,15 +194,59 @@ def create_staff(pdf: canvas.Canvas,
     bass_clef_y = top_left_y - 9.25 * inter_bar_distance
     renderPDF.draw(bass_clef_svg, pdf, bass_clef_x, bass_clef_y)
 
-    return (treble_clef_x + treble_clef_svg.width,
+    return (treble_clef_x + treble_clef_width,
             top_left_y - 2 * staff_height - 2 * inter_bar_distance)
+
+
+def semibars_relative_to_center_of_top_bar(note: Note) -> int:
+    base_diffs_from_f = {
+        'C' : -3,
+        'C#': -3,
+        'D' : -2,
+        'D#': -2,
+        'E' : -1,
+        'F' : 0,
+        'F#': 0,
+        'G' : 1,
+        'G#': 1,
+        'A' : 2,
+        'A#': 2,
+        'B' : 3
+    }
+    # E = E4
+    # c#' = C3#
+    base_diff = base_diffs_from_f[note.value.value]
+
+
+
 
 
 def draw_note(note: Note,
               position: int,
-              system_top_left_x: int,
-              system_top_left_y: int):
-    ...
+              first_block_left_x: int,
+              top_bar_y: int,):
+
+    pdf.setStrokeColorRGB(0, 0, 0, 1.0)
+
+    inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
+
+    note_diameter = CONFIG['staff']['notes']['note_diameter']
+    note_margin = CONFIG['staff']['notes']['note_margin']
+
+    block_width = note_margin + note_diameter + note_margin
+
+    target_block_start_x = first_block_left_x + position * block_width
+
+
+
+
+
+
+
+
+
+
+
 
 
 left_margin = CONFIG['margins']['left']
@@ -221,11 +265,11 @@ current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
 
 for system in convertor.raw_output_symbols_by_system():
-    end_x, end_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
-    current_staff_top_left_y = end_y - inter_staff_distance
+    first_block_left_x, bottom_bar_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
+    current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
-end_x, end_y = create_staff(pdf, 30, current_staff_top_left_x, current_staff_top_left_y)
-current_staff_top_left_y = end_y - inter_staff_distance
+first_block_left_x, bottom_bar_y = create_staff(pdf, 30, current_staff_top_left_x, current_staff_top_left_y)
+current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 

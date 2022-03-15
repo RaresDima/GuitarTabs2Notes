@@ -29,6 +29,7 @@ staff:
     inter_staff_distance: 30
 
     # Whether to draw both the treble and bass staves, or only the treble staff.
+    # Not much reason to turn on so far. Guitars don't regularly go this low.
     draw_grand_staff: false
 
 
