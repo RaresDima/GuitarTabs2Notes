@@ -4,6 +4,7 @@ import reportlab
 from reportlab.lib import pagesizes
 from reportlab.pdfgen import canvas
 from reportlab.graphics import renderPDF
+from reportlab.graphics.shapes import Ellipse
 from reportlab.graphics.shapes import Drawing
 from svglib.svglib import svg2rlg
 
@@ -51,7 +52,7 @@ def create_staff(pdf: canvas.Canvas,
     inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
     staff_height = inter_bar_distance * 4
 
-    note_block_width = CONFIG['staff']['notes']['note_diameter'] + 2 * CONFIG['staff']['notes']['note_margin']
+    note_block_width = CONFIG['staff']['notes']['note_width'] + 2 * CONFIG['staff']['notes']['note_margin']
     note_blocks_length = note_block_width * n_notes
 
     bar_width = CONFIG['staff']['bars']['bar_width']
@@ -229,10 +230,11 @@ def add_note_to_system(pdf: canvas.Canvas,
     pdf.setFillColorRGB(0, 0, 0, 1.0)
 
     inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
-    note_diameter = CONFIG['staff']['notes']['note_diameter']
+    bar_width = CONFIG['staff']['bars']['bar_width']
+    note_width = CONFIG['staff']['notes']['note_width']
     note_margin = CONFIG['staff']['notes']['note_margin']
 
-    block_width = note_margin + note_diameter + note_margin
+    block_width = note_margin + note_width + note_margin
     target_block_start_x = first_block_left_x + position * block_width
     note_center_x = target_block_start_x + block_width / 2
 
@@ -242,7 +244,6 @@ def add_note_to_system(pdf: canvas.Canvas,
 
     if semibar_diff > +0 or semibar_diff < -8:
 
-        bar_width = CONFIG['staff']['bars']['bar_width']
         bar_transparency = CONFIG['staff']['bars']['bar_transparency']
         support_bar_length = CONFIG['staff']['bars']['support_bar_length']
 
@@ -270,7 +271,21 @@ def add_note_to_system(pdf: canvas.Canvas,
             current_diff += diff_shift_factor
             line_y += line_y_shift_factor
 
-    pdf.circle(note_center_x, note_center_y, note_diameter/2, fill=1)
+
+
+    # pdf.circle(note_center_x, note_center_y, note_width/2, stroke=0, fill=1)
+    note_left_x = note_center_x - note_width / 2
+    note_right_x = note_center_x + note_width / 2
+    note_bottom_y = note_center_y - inter_bar_distance / 2 + bar_width / 2
+    note_top_y = note_center_y + inter_bar_distance / 2 - bar_width / 2
+
+
+    pdf.ellipse(note_left_x, note_bottom_y, note_right_x, note_top_y, stroke=0, fill=1)
+    e = Ellipse(note_center_x, note_center_y, note_center_x+30, note_center_y+30)
+    # .draw(e, pdf, note_center_x, note_center_y)
+
+
+
 
 
 def add_notes_to_system(pdf: canvas.Canvas,
@@ -287,8 +302,11 @@ def add_notes_to_system(pdf: canvas.Canvas,
 
 left_margin = CONFIG['margins']['left']
 top_margin  = CONFIG['margins']['top']
+bottom_margin = CONFIG['margins']['bottom']
 
 inter_staff_distance = CONFIG['staff']['inter_staff_distance']
+inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
+staff_height = inter_bar_distance * 4
 
 pdf = canvas.Canvas(os.path.join(CONFIG['output_dir'], title + '.pdf'), pagesize=pagesizes.A4)
 
@@ -304,6 +322,15 @@ for system in convertor.raw_output_symbols_by_system():
     first_block_left_x, bottom_bar_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
     add_notes_to_system(pdf, system, first_block_left_x, current_staff_top_left_y)
     current_staff_top_left_y = bottom_bar_y - inter_staff_distance
+
+    # should we go to next page?
+
+    space_left = current_staff_top_left_y
+    space_needed = staff_height + max(inter_staff_distance, bottom_margin)
+    if space_left < space_needed:
+        pdf.showPage()
+        current_staff_top_left_x = top_left_x + left_margin
+        current_staff_top_left_y = top_left_y - top_margin
 
 first_block_left_x, bottom_bar_y = create_staff(pdf, 30, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = bottom_bar_y - inter_staff_distance
