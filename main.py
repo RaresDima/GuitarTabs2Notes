@@ -213,39 +213,41 @@ def semibars_relative_to_center_of_top_bar(note: Note) -> int:
         'A#': 2,
         'B' : 3
     }
-    # E = E4
-    # c#' = C3#
     base_diff = base_diffs_from_f[note.value.value]
+    octave_shift = note.octave_shift - 1
+    diff = base_diff + octave_shift * 7
+    return diff
 
 
-
-
-
-def draw_note(note: Note,
+def draw_note(pdf: canvas.Canvas,
+              note: Note,
               position: int,
               first_block_left_x: int,
               top_bar_y: int,):
 
     pdf.setStrokeColorRGB(0, 0, 0, 1.0)
+    pdf.setFillColorRGB(0, 0, 0, 1.0)
 
     inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
-
     note_diameter = CONFIG['staff']['notes']['note_diameter']
     note_margin = CONFIG['staff']['notes']['note_margin']
 
     block_width = note_margin + note_diameter + note_margin
-
     target_block_start_x = first_block_left_x + position * block_width
+    note_center_x = target_block_start_x + block_width / 2
+
+    semibar_diff = semibars_relative_to_center_of_top_bar(note)
+    note_y_offset = semibar_diff * (inter_bar_distance / 2)
+    note_center_y = top_bar_y + note_y_offset
+
+    pdf.circle(note_center_x, note_center_y, note_diameter/2, fill=1)
 
 
-
-
-
-
-
-
-
-
+def add_notes_to_system(pdf: canvas.Canvas,
+                        notes: List[Note],
+                        first_block_left_x: int,
+                        top_bar_y: int):
+    ...
 
 
 
