@@ -9,8 +9,10 @@ from svglib.svglib import svg2rlg
 
 import warning
 from config import CONFIG
+from tab_convertor import Note
 from tab_convertor import GuitarTabConvertor
 
+from typing import *
 
 
 TAB_FILE = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
@@ -27,9 +29,6 @@ tab = convertor.pretty_output_tab(title=title)
 with open(os.path.join(CONFIG['output_dir'], file_name), 'w') as f:
     f.write(tab)
 
-print(tab)
-print(convertor.raw_output_symbols())
-
 # ---------------------------------
 
 
@@ -45,9 +44,9 @@ def scale_svg_to_height(svg: Drawing, target_height: int):
 
 
 def create_staff(pdf: canvas.Canvas,
+                 n_notes: int,
                  top_left_x: int,
-                 top_left_y: int,
-                 n_notes: int) -> int:
+                 top_left_y: int) -> Tuple[int, int]:
 
     inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
     staff_height = inter_bar_distance * 4
@@ -57,21 +56,6 @@ def create_staff(pdf: canvas.Canvas,
 
     bar_width = CONFIG['staff']['bars']['bar_width']
     bar_transparency = CONFIG['staff']['bars']['bar_transparency']
-
-    right_margin = CONFIG['margins']['right']
-
-    pdf_width, pdf_height = pdf._pagesize
-
-    if top_left_x + staff_length + right_margin > pdf_width:
-        max_notes = round((pdf_width - right_margin - top_left_x) // note_width)
-        msg = (f'A system with {n_notes} notes (or spaces) would cause the system to go beyond the right margin of the page.\n'
-               f'With the current margins and note size you can have {max_notes} (or spaces) on a single system.'
-               f'The generated PDF will not look pretty, but it may be usable.\n'
-               f'To make the PDF pretty you can try to either:\n'
-               f'  - shrink the margins of the page\n'
-               f'  - make the notes or note margins smaller\n'
-               f'  - manually edit the tabs given as input and split the larger systems into more than 1 system')
-        warning.warn(msg)
 
     pdf.setLineWidth(bar_width)
     pdf.setStrokeColorRGB(0, 0, 0, bar_transparency)
@@ -126,10 +110,32 @@ def create_staff(pdf: canvas.Canvas,
     treble_clef_y = top_left_y - 5.75 * inter_bar_distance
     renderPDF.draw(treble_clef_svg, pdf, treble_clef_x, treble_clef_y)
 
+    # width warning
+
+    right_margin = CONFIG['margins']['right']
+
+    pdf_width, pdf_height = pdf._pagesize
+    treble_clef_width = treble_clef_svg.width
+
+    if top_left_x + treble_clef_width + staff_length + right_margin > pdf_width:
+        max_notes = round((pdf_width - right_margin - top_left_x - treble_clef_width) // note_width)
+        msg = (f'A system with {n_notes} notes (or spaces) would cause the system to go beyond the right margin of the page.\n'
+               f'With the current margins and note size you can have {max_notes} notes (or spaces) on a single system.'
+               f'The generated PDF will not look pretty, but it may be usable.\n'
+               f'To make the PDF pretty you can try to either:\n'
+               f'  - shrink the margins of the page\n'
+               f'  - make the notes or note margins smaller\n'
+               f'  - manually edit the tabs given as input and split the larger systems into more than 1 system')
+        warning.warn(msg)
+
+    # grand staff decision
+
     draw_grand_staff = CONFIG['staff']['draw_grand_staff']
 
     if not draw_grand_staff:
-        return top_left_y - 4 * inter_bar_distance
+        return (treble_clef_x + treble_clef_svg.width,
+                top_left_y - staff_height)
+
 
     # bass staff
 
@@ -185,8 +191,15 @@ def create_staff(pdf: canvas.Canvas,
     bass_clef_y = top_left_y - 9.25 * inter_bar_distance
     renderPDF.draw(bass_clef_svg, pdf, bass_clef_x, bass_clef_y)
 
-    return top_left_y - 10 * inter_bar_distance
+    return (treble_clef_x + treble_clef_svg.width,
+            top_left_y - 2 * staff_height - 2 * inter_bar_distance)
 
+
+def draw_note(note: Note,
+              position: int,
+              system_top_left_x: int,
+              system_top_left_y: int):
+    ...
 
 
 left_margin = CONFIG['margins']['left']
@@ -204,19 +217,21 @@ top_left_y = height
 current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
 
-end_y = create_staff(pdf, current_staff_top_left_x, current_staff_top_left_y, 50)
+end_x, end_y = create_staff(pdf, 50, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = end_y - inter_staff_distance
 
-end_y = create_staff(pdf, current_staff_top_left_x, current_staff_top_left_y, 40)
+end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = end_y - inter_staff_distance
 
-end_y = create_staff(pdf, current_staff_top_left_x, current_staff_top_left_y, 40)
+end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = end_y - inter_staff_distance
 
-end_y = create_staff(pdf, current_staff_top_left_x, current_staff_top_left_y, 40)
+end_x, end_y = create_staff(pdf, 40, current_staff_top_left_x, current_staff_top_left_y)
 current_staff_top_left_y = end_y - inter_staff_distance
 
 pdf.save()
+
+print(*convertor.raw_output_symbols_by_system(), sep='\n')
 
 
 

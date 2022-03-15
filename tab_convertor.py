@@ -115,7 +115,8 @@ class Note:
         return self.__add__(-semitones)
 
     def __eq__(self, other: 'Note') -> bool:
-        return (self.value == other.value and
+        return (type(self) == type(other) and
+                self.value == other.value and
                 self.octave_shift == other.octave_shift)
 
     def __gt__(self, other: 'Note') -> bool:
@@ -249,8 +250,13 @@ class GuitarTabConvertor:
     def raw_output_symbols(self) -> List[Union[str, Note]]:
         return self._active_output
 
-    def raw_output_symbols_by_system(self) -> List[Union[str, Note]]:
-        return self._active_output
+    def raw_output_symbols_by_system(self) -> List[List[Union[str, Note]]]:
+        output = self._active_output.copy()
+        bar_locations = [i for i, symbol in enumerate(output) if symbol == '|']
+        systems = []
+        for system_start, system_end in zip(bar_locations[:-1], bar_locations[1:]):
+            systems += [output[system_start+1:system_end]]
+        return systems
 
     def raw_output_tab(self) -> str:
         return ''.join([(symbol.note_str() if isinstance(symbol, Note) else symbol)
