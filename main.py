@@ -1,4 +1,5 @@
 import os
+import sys
 
 import reportlab
 from reportlab.lib import pagesizes
@@ -6,6 +7,7 @@ from reportlab.pdfgen import canvas
 from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Ellipse
 from reportlab.graphics.shapes import Drawing
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from svglib.svglib import svg2rlg
 
 import warning
@@ -13,19 +15,34 @@ from config import CONFIG
 from tab_convertor import Note
 from tab_convertor import GuitarTabConvertor
 
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+
 from typing import *
 
 
-TAB_FILE = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
+# ake all relative paths be relative to the root dir of the program
 
-with open(TAB_FILE) as f:
+os.chdir(os.path.split(sys.argv[0])[0])
+
+# process the tabs and output the plaintext version
+
+# tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
+
+Tk().withdraw()
+tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
+
+with open(tab_file) as f:
     tab = f.read()
 
 convertor = GuitarTabConvertor(tab)
 
-file_name = os.path.split(TAB_FILE)[1]
+file_name = os.path.split(tab_file)[1]
 title = os.path.splitext(file_name)[0]
 tab = convertor.pretty_output_tab(title=title)
+
+if not os.path.isdir(CONFIG['output_dir']):
+    os.makedirs(CONFIG['output_dir'], exist_ok=True)
 
 with open(os.path.join(CONFIG['output_dir'], file_name), 'w') as f:
     f.write(tab)
@@ -317,6 +334,15 @@ top_left_y = height
 
 current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
+
+string_height = 25
+pdf.setFont('Helvetica', string_height)
+string_width = stringWidth(title, 'Helvetica', string_height)
+string_left_x = width / 2 - string_width / 2
+string_bottom_y = current_staff_top_left_y - string_height
+pdf.drawString(string_left_x, string_bottom_y, title)
+
+current_staff_top_left_y = string_bottom_y - inter_staff_distance
 
 for system in convertor.raw_output_symbols_by_system():
     first_block_left_x, bottom_bar_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
