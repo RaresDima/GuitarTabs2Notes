@@ -39,6 +39,8 @@ staff:
     draw_grand_staff: false
 
 title:
+    draw_title: true
+
     # By default the only supported fonts are "Helvetica" and "Times-Roman".
     # To add more fonts drop the .ttf files into .\data\fonts.
     # Then use the name of the .ttf file as the value of this setting.
