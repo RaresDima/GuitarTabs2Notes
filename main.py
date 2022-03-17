@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Ellipse
 from reportlab.graphics.shapes import Drawing
-from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.pdfbase import pdfmetrics
 from svglib.svglib import svg2rlg
 
 import warning
@@ -21,11 +21,11 @@ from tkinter.filedialog import askopenfilename
 from typing import *
 
 
-# ake all relative paths be relative to the root dir of the program
+# make all relative paths be relative to the root dir of the program
 
 os.chdir(os.path.split(sys.argv[0])[0])
 
-# process the tabs and output the plaintext version
+# get the tab file, read it, convert it, output the plaintext result
 
 # tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
 
@@ -47,7 +47,7 @@ if not os.path.isdir(CONFIG['output_dir']):
 with open(os.path.join(CONFIG['output_dir'], file_name), 'w') as f:
     f.write(tab)
 
-# ---------------------------------
+# create the pretty pdf
 
 
 def scale_svg_to_height(svg: Drawing, target_height: int):
@@ -288,21 +288,13 @@ def add_note_to_system(pdf: canvas.Canvas,
             current_diff += diff_shift_factor
             line_y += line_y_shift_factor
 
-
-
     # pdf.circle(note_center_x, note_center_y, note_width/2, stroke=0, fill=1)
     note_left_x = note_center_x - note_width / 2
     note_right_x = note_center_x + note_width / 2
     note_bottom_y = note_center_y - inter_bar_distance / 2 + bar_width / 2
     note_top_y = note_center_y + inter_bar_distance / 2 - bar_width / 2
 
-
     pdf.ellipse(note_left_x, note_bottom_y, note_right_x, note_top_y, stroke=0, fill=1)
-    e = Ellipse(note_center_x, note_center_y, note_center_x+30, note_center_y+30)
-    # .draw(e, pdf, note_center_x, note_center_y)
-
-
-
 
 
 def add_notes_to_system(pdf: canvas.Canvas,
@@ -317,6 +309,8 @@ def add_notes_to_system(pdf: canvas.Canvas,
         add_note_to_system(pdf, symbol, pos, first_block_left_x, top_bar_y)
 
 
+# config values
+
 left_margin = CONFIG['margins']['left']
 top_margin  = CONFIG['margins']['top']
 bottom_margin = CONFIG['margins']['bottom']
@@ -325,7 +319,11 @@ inter_staff_distance = CONFIG['staff']['inter_staff_distance']
 inter_bar_distance = CONFIG['staff']['bars']['inter_bar_distance']
 staff_height = inter_bar_distance * 4
 
+# create the pdf
+
 pdf = canvas.Canvas(os.path.join(CONFIG['output_dir'], title + '.pdf'), pagesize=pagesizes.A4)
+
+# setup starting coords
 
 width, height = pagesizes.A4
 
@@ -335,14 +333,19 @@ top_left_y = height
 current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
 
-string_height = 25
-pdf.setFont('Helvetica', string_height)
-string_width = stringWidth(title, 'Helvetica', string_height)
-string_left_x = width / 2 - string_width / 2
-string_bottom_y = current_staff_top_left_y - string_height
-pdf.drawString(string_left_x, string_bottom_y, title)
+# add title
 
-current_staff_top_left_y = string_bottom_y - inter_staff_distance
+title_height = CONFIG['title']['font_size']
+title_font = CONFIG['title']['font']
+pdf.setFont(title_font, title_height)
+title_width = pdfmetrics.stringWidth(title, title_font, title_height)
+title_left_x = width / 2 - title_width / 2
+title_bottom_y = current_staff_top_left_y - title_height
+pdf.drawString(title_left_x, title_bottom_y, title)
+
+current_staff_top_left_y = title_bottom_y - inter_staff_distance
+
+# add staves and notes
 
 for system in convertor.raw_output_symbols_by_system():
     first_block_left_x, bottom_bar_y = create_staff(pdf, len(system), current_staff_top_left_x, current_staff_top_left_y)
@@ -363,6 +366,7 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 
+print(pdfmetrics.getRegisteredFontNames())
 
 
 

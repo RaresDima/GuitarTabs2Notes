@@ -35,5 +35,11 @@ staff:
     # Not much reason to turn on so far. Guitars don't regularly go this low.
     draw_grand_staff: false
 
+title:
+    # Currently only the values "Helvetica" (for Helvetica) and
+    # "Times-Roman" (for Times New Roman) are supported.
+    font: Times-Roman
+    font_size: 25
+
 output_dir: ".\\tabs\\staff"
 
