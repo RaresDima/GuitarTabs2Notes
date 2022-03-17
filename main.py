@@ -399,9 +399,5 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 
-
-
-
-
-
-
+print('Done!')
+input('Press Enter to end the program...')
