@@ -29,6 +29,12 @@ staff:
         # "auto" will default to 0.25 * note_width.
         note_margin: 1
 
+        labels:
+            # Whether to also draw the letter of the note inside the note.
+            draw_labels: true
+            # Refer to the setting title:font for more information about fonts.
+            font: Helvetica
+
     # Distance from the last bar of a system to the first bar of the next system.
     # If not drawing a full grand staff then this should be higher since the
     # treble clef estends about 1.5 bars below the last bar of the system.

@@ -28,8 +28,8 @@ os.chdir(os.path.split(sys.argv[0])[0])
 # get the tab file, read it, convert it, output the plaintext result
 
 Tk().withdraw()
-# tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
-tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
+tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
+# tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
 
 with open(tab_file) as f:
     tab = f.read()
@@ -297,12 +297,17 @@ def add_note_to_system(pdf: canvas.Canvas,
 
     # note label
 
+    draw_note_labels = CONFIG['staff']['notes']['labels']['draw_labels']
+
+    if not draw_note_labels:
+        return
+
     note_height = note_top_y - note_bottom_y
     note_label_height = note_height * 0.75
     note_label_bottom_y = note_center_y - note_label_height / 2.5
 
     note_label_text = note.value.value
-    note_label_font = 'Helvetica'
+    note_label_font = CONFIG['staff']['notes']['labels']['font']
     pdf.setFont(note_label_font, note_label_height)
     note_label_width = pdfmetrics.stringWidth(note_label_text, note_label_font, note_label_height)
     note_label_left_x = note_center_x - note_label_width / 2
