@@ -29,7 +29,7 @@ os.chdir(os.path.split(sys.argv[0])[0])
 
 Tk().withdraw()
 tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
-# tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
+# tab_file = r'E:\Tools\Projects\PyCharm Projects\GuitarTabs2Notes\tabs\guitar\Genshin Impact - Main Theme.txt'
 
 with open(tab_file) as f:
     tab = f.read()
@@ -400,4 +400,5 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 pdf.save()
 
 print('Done!')
+print(f'Output files created in: {os.path.abspath(CONFIG["output_dir"])}')
 input('Press Enter to end the program...')
