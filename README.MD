@@ -80,6 +80,11 @@ possible. However...
 ...If some bug requires rewriting half the program to solve it, I may just 
 place a band-aid solution on top of it and call it a day. 
 
+#### 1.3. I am open to suggestions.
+
+The above being said, I do want to add things that people would want to use so 
+feel free to reach out to me with suggestions or ideas!
+
 
 #### 2. The name of the .txt file will be considered the title of the song. 
 
