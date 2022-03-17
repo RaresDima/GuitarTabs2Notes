@@ -13,17 +13,17 @@ staff:
         # 1.0 is 100% visible, 0.0 is 0% visible.
         bar_transparency: 0.7
         inter_bar_distance: 7
-        # A whole number or "auto".
+        # A number or "auto".
         # The length of the bars used to support notes that are above or below the staff.
         # "auto" will default to 2.5 x note_width.
         support_bar_length: auto
 
     notes:
-        # A whole number or "auto".
-        # "auto" will default to 1.25 *inter_bar_space.
+        # A number or "auto".
+        # "auto" will default to 1.25 * inter_bar_space.
         note_width: auto
-        # A whole number or "auto".
-        # "auto" will default to half the value of note_width.
+        # A number or "auto".
+        # "auto" will default to 0.25 * note_width.
         note_margin: 2
 
     # Distance from the last bar of a system to the first bar of the next system.
@@ -36,10 +36,16 @@ staff:
     draw_grand_staff: false
 
 title:
-    # Currently only the values "Helvetica" (for Helvetica) and
-    # "Times-Roman" (for Times New Roman) are supported.
-    font: Times-Roman
+    # By default the only supported values are "Helvetica" and "Times-Roman".
+    # To add more fonts drop the .ttf files into .\data\fonts.
+    # Then use the name of the .ttf file as the value of this setting.
+    # E.g. If you have Countryside.ttf inside .\data\fonts, you can use the sitting "Countryside" here.
+    font: Countryside
     font_size: 25
+
+    # A number or "auto".
+    # "auto" will default to the value of inter_staff_space.
+    distance_to_first_staff: 200
 
 output_dir: ".\\tabs\\staff"
 

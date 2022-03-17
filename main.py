@@ -5,9 +5,9 @@ import reportlab
 from reportlab.lib import pagesizes
 from reportlab.pdfgen import canvas
 from reportlab.graphics import renderPDF
-from reportlab.graphics.shapes import Ellipse
 from reportlab.graphics.shapes import Drawing
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase import ttfonts
 from svglib.svglib import svg2rlg
 
 import warning
@@ -27,10 +27,9 @@ os.chdir(os.path.split(sys.argv[0])[0])
 
 # get the tab file, read it, convert it, output the plaintext result
 
-# tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
-
 Tk().withdraw()
-tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
+# tab_file = askopenfilename(title='Select a file containing guitar tabs', initialdir=os.getcwd())
+tab_file = r'.\tabs\guitar\Genshin Impact - Main Theme.txt'
 
 with open(tab_file) as f:
     tab = f.read()
@@ -80,7 +79,7 @@ def create_staff(pdf: canvas.Canvas,
 
     # treble clef setup
 
-    treble_clef_path = CONFIG['staff']['paths']['treble_clef']
+    treble_clef_path = CONFIG['paths']['treble_clef_svg']
     treble_clef_svg = svg2rlg(treble_clef_path)
 
     treble_clef_height = staff_height + 3 * inter_bar_distance
@@ -197,7 +196,7 @@ def create_staff(pdf: canvas.Canvas,
 
     # bass clef
 
-    bass_clef_path = CONFIG['staff']['paths']['bass_clef']
+    bass_clef_path = CONFIG['paths']['bass_clef_svg']
     bass_clef_svg = svg2rlg(bass_clef_path)
 
     bass_clef_height = 3.25 * inter_bar_distance
@@ -333,7 +332,16 @@ top_left_y = height
 current_staff_top_left_x = top_left_x + left_margin
 current_staff_top_left_y = top_left_y - top_margin
 
-# add title
+# register found fonts and add title
+
+font_dir = CONFIG['paths']['font_dir']
+for file in os.listdir(font_dir):
+    file_name, file_type = os.path.splitext(file)
+    if file_type.lower() == '.ttf':  # is font file
+        font_name = file_name
+        font_path = os.path.join(font_dir, file)
+        font = ttfonts.TTFont(font_name, font_path)
+        pdfmetrics.registerFont(font)
 
 title_height = CONFIG['title']['font_size']
 title_font = CONFIG['title']['font']
@@ -366,7 +374,6 @@ current_staff_top_left_y = bottom_bar_y - inter_staff_distance
 
 pdf.save()
 
-print(pdfmetrics.getRegisteredFontNames())
 
 
 
