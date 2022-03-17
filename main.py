@@ -345,13 +345,15 @@ for file in os.listdir(font_dir):
 
 title_height = CONFIG['title']['font_size']
 title_font = CONFIG['title']['font']
+title_top_margin = CONFIG['title']['margins']['top']
+title_bottom_margin = CONFIG['title']['margins']['bottom']
 pdf.setFont(title_font, title_height)
 title_width = pdfmetrics.stringWidth(title, title_font, title_height)
 title_left_x = width / 2 - title_width / 2
-title_bottom_y = current_staff_top_left_y - title_height
+title_bottom_y = current_staff_top_left_y - title_height - title_top_margin
 pdf.drawString(title_left_x, title_bottom_y, title)
 
-current_staff_top_left_y = title_bottom_y - inter_staff_distance
+current_staff_top_left_y = title_bottom_y - title_bottom_margin
 
 # add staves and notes
 

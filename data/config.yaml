@@ -1,3 +1,5 @@
+
+# Margins from the edge of the page.
 margins:
     top: 25
     bottom: 25
@@ -16,15 +18,15 @@ staff:
         # A number or "auto".
         # The length of the bars used to support notes that are above or below the staff.
         # "auto" will default to 2.5 x note_width.
-        support_bar_length: auto
+        support_bar_length: 17
 
     notes:
         # A number or "auto".
-        # "auto" will default to 1.25 * inter_bar_space.
+        # "auto" will default to 1.25 * inter_bar_distance.
         note_width: auto
         # A number or "auto".
         # "auto" will default to 0.25 * note_width.
-        note_margin: 2
+        note_margin: 1
 
     # Distance from the last bar of a system to the first bar of the next system.
     # If not drawing a full grand staff then this should be higher since the
@@ -44,8 +46,11 @@ title:
     font_size: 25
 
     # A number or "auto".
-    # "auto" will default to the value of inter_staff_space.
-    distance_to_first_staff: 200
+    # "auto" top margin will default to 0.5 * inter_staff_space.
+    # "auto" bottom margin will default to 1.5 * inter_staff_space.
+    margins:
+        top: auto
+        bottom: auto
 
 output_dir: ".\\tabs\\staff"
 

@@ -17,5 +17,8 @@ if CONFIG['staff']['notes']['note_margin'] == 'auto':
 if CONFIG['staff']['bars']['support_bar_length'] == 'auto':
     CONFIG['staff']['bars']['support_bar_length'] = CONFIG['staff']['notes']['note_width'] * 2.5
 
-if CONFIG['title']['distance_to_first_staff'] == 'auto':
-    CONFIG['title']['distance_to_first_staff'] = CONFIG['staff']['inter_staff_distance']
+if CONFIG['title']['margins']['top'] == 'auto':
+    CONFIG['title']['margins']['top'] = CONFIG['staff']['inter_staff_distance'] / 2
+
+if CONFIG['title']['margins']['bottom'] == 'auto':
+    CONFIG['title']['margins']['bottom'] = CONFIG['staff']['inter_staff_distance'] * 1.5
