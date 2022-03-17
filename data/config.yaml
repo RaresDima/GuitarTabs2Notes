@@ -1,10 +1,12 @@
 
 # Margins from the edge of the page.
+# A number or "auto" (only for the bottom and right margins).
+# "auto" for bottom/right margins will default to the values of the top/left margins.
 margins:
-    top: 25
-    bottom: 25
-    left: 25
-    right: 25
+    top: 60
+    bottom: 20
+    left: 40
+    right: auto
 
 staff:
     bars:
@@ -45,10 +47,10 @@ title:
     font_size: 25
 
     # A number or "auto".
-    # "auto" top margin will default to 0.5 * inter_staff_space.
+    # "auto" top margin will default to 0.25 * inter_staff_space.
     # "auto" bottom margin will default to 1.5 * inter_staff_space.
     margins:
-        top: auto
+        top: 0
         bottom: auto
 
 output_dir: ".\\tabs\\staff"
